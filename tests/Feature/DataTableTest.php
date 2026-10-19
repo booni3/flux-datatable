@@ -1,5 +1,6 @@
 <?php
 
+use Booni3\FluxDatatable\Tests\Fixtures\ConfigurableItemsTable;
 use Booni3\FluxDatatable\Tests\Fixtures\Item;
 use Booni3\FluxDatatable\Tests\Fixtures\ItemsTable;
 use Livewire\Livewire;
@@ -125,4 +126,93 @@ it('redirects a row click only for same-origin urls', function () {
     Livewire::test(ItemsTable::class)
         ->call('clickTableRow', url('/items/2'))
         ->assertRedirect(url('/items/2'));
+});
+
+it('uses the configured empty message and search placeholder', function () {
+    Livewire::test(ConfigurableItemsTable::class)
+        ->set('search', 'zzz')
+        ->assertSee('Nothing here.')
+        ->assertDontSee('No records found.')
+        ->assertSee('Find items', false);
+
+    Livewire::test(ItemsTable::class)
+        ->set('search', 'zzz')
+        ->assertSee('No records found.')
+        ->assertSee('Search...', false);
+});
+
+it('returns all rows without pagination when paginate is false', function () {
+    Item::create(['name' => 'Dowel', 'status' => 'active']);
+    Item::create(['name' => 'Eye', 'status' => 'active']);
+
+    $component = Livewire::test(ConfigurableItemsTable::class, ['paginate' => false])
+        ->assertSee('Anvil')
+        ->assertSee('Eye')
+        ->assertDontSee('nextPage', false);
+
+    expect($component->instance()->rows)->toHaveCount(5)->toBeInstanceOf(\Illuminate\Support\Collection::class);
+
+    Livewire::test(ItemsTable::class)->assertSee('nextPage', false);
+});
+
+it('keeps separate pages for tables with different page names', function () {
+    Item::create(['name' => 'Dowel', 'status' => 'active']);
+    Item::create(['name' => 'Eye', 'status' => 'active']);
+
+    $first = Livewire::test(ConfigurableItemsTable::class, ['pageName' => 'itemsPage'])
+        ->call('setPage', 2, 'itemsPage')
+        ->assertSet('paginators.itemsPage', 2);
+
+    $second = Livewire::test(ConfigurableItemsTable::class, ['pageName' => 'otherPage'])
+        ->assertSet('paginators.otherPage', 1);
+
+    expect($first->get('paginators'))->not->toHaveKey('page');
+    expect($second->get('paginators'))->not->toHaveKey('itemsPage');
+});
+
+it('reads each table page from its own query string key', function () {
+    Item::create(['name' => 'Dowel', 'status' => 'active']);
+    Item::create(['name' => 'Eye', 'status' => 'active']);
+
+    Livewire::withQueryParams(['itemsPage' => 2])
+        ->test(ConfigurableItemsTable::class, ['pageName' => 'itemsPage'])
+        ->assertSet('paginators.itemsPage', 2);
+
+    Livewire::withQueryParams(['itemsPage' => 2])
+        ->test(ConfigurableItemsTable::class, ['pageName' => 'otherPage'])
+        ->assertSet('paginators.otherPage', 1);
+});
+
+it('resets the named page on search, filter and sort changes', function () {
+    Item::create(['name' => 'Dowel', 'status' => 'active']);
+    Item::create(['name' => 'Eye', 'status' => 'active']);
+
+    Livewire::test(ConfigurableItemsTable::class, ['pageName' => 'itemsPage'])
+        ->call('setPage', 2, 'itemsPage')
+        ->set('search', 'o')
+        ->assertSet('paginators.itemsPage', 1)
+        ->call('setPage', 2, 'itemsPage')
+        ->call('sortBy', 'name')
+        ->assertSet('paginators.itemsPage', 1)
+        ->call('setPage', 2, 'itemsPage')
+        ->set('filterValues.status', 'active')
+        ->assertSet('paginators.itemsPage', 1);
+});
+
+it('merges cell attributes onto the cell', function () {
+    Livewire::test(ConfigurableItemsTable::class)
+        ->assertSeeHtml('cell-extra')
+        ->assertSeeHtml('data-item="1"');
+});
+
+it('renders the toolbarStart slot', function () {
+    Livewire::test(ConfigurableItemsTable::class, ['toolbarStart' => 'toolbar-start'])
+        ->assertSee('start-slot-marker');
+
+    Livewire::test(ConfigurableItemsTable::class)->assertDontSee('start-slot-marker');
+});
+
+it('renders the package table view overrides instead of the Flux stubs', function () {
+    Livewire::test(ConfigurableItemsTable::class)
+        ->assertSeeHtml('not-in-[tr:first-child]:border-t border-line');
 });

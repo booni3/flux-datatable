@@ -27,6 +27,14 @@ abstract class DataTable extends Component
 
     protected string $paginationMethod = 'simplePaginate';
 
+    protected ?string $pageName = null;
+
+    protected bool $paginate = true;
+
+    protected string $emptyMessage = 'No records found.';
+
+    protected string $searchPlaceholder = 'Search...';
+
     protected string $defaultSortBy = 'id';
 
     protected string $defaultSortDirection = 'desc';
@@ -74,6 +82,11 @@ abstract class DataTable extends Component
         return '_self';
     }
 
+    public function cellAttributes(Column $column, mixed $row): array
+    {
+        return [];
+    }
+
     public function mobileRowView(): ?string
     {
         return $this->mobileRowView;
@@ -81,7 +94,12 @@ abstract class DataTable extends Component
 
     public function updatedSearch(): void
     {
-        $this->resetPage();
+        $this->resetTablePage();
+    }
+
+    public function resetTablePage(): void
+    {
+        $this->resetPage($this->pageName ?? 'page');
     }
 
     public function placeholder()
@@ -164,11 +182,17 @@ abstract class DataTable extends Component
 
     protected function executePagination(Builder $query): Paginator|Collection
     {
-        if ($this->paginationMethod === 'paginate') {
-            return $query->paginate($this->perPage);
+        if (! $this->paginate) {
+            return $query->get();
         }
 
-        return $query->simplePaginate($this->perPage);
+        $pageName = $this->pageName ?? 'page';
+
+        if ($this->paginationMethod === 'paginate') {
+            return $query->paginate($this->perPage, pageName: $pageName);
+        }
+
+        return $query->simplePaginate($this->perPage, pageName: $pageName);
     }
 
     protected function afterRowsFetched(Paginator|Collection $rows): void

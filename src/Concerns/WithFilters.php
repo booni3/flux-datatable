@@ -21,14 +21,14 @@ trait WithFilters
 
     public function updatedFilterValues(): void
     {
-        $this->resetPage();
+        $this->resetTablePage();
     }
 
     public function resetFilters(): void
     {
         $this->filterValues = [];
         $this->mountWithFilters();
-        $this->resetPage();
+        $this->resetTablePage();
     }
 
     public function getAppliedFiltersWithValues(): array

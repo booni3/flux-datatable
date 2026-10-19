@@ -21,7 +21,7 @@ trait WithSorting
             $this->sortDirection = 'asc';
         }
 
-        $this->resetPage();
+        $this->resetTablePage();
     }
 
     public function hasSort(): bool

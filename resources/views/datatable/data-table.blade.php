@@ -17,12 +17,16 @@
         @endphp
         <div class="px-4 py-3 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-line">
             <div class="flex flex-wrap items-center gap-2">
+                @if(isset($toolbarStart))
+                    @include($toolbarStart, $toolbarStartData ?? [])
+                @endif
+
                 {{-- Search --}}
                 @if($this->hasSearch())
                     <flux:input
                         wire:model.live.debounce.300ms="search"
                         icon="magnifying-glass"
-                        placeholder="Search..."
+                        placeholder="{{ $this->searchPlaceholder }}"
                         size="sm"
                         class="!w-full sm:!w-[220px]"
                         clearable
@@ -106,7 +110,7 @@
             @if($mobileRowView)
                 <div class="hidden xl:block">
             @endif
-        <flux:table :paginate="$mobileRowView ? null : $rows">
+        <flux:table :paginate="$mobileRowView || !$this->paginate ? null : $rows">
             <flux:table.columns>
                 {{-- Bulk select checkbox --}}
                 @if($this->hasBulkActions())
@@ -171,7 +175,7 @@
                             @endif
 
                             @foreach($this->getVisibleColumns() as $column)
-                                <flux:table.cell>
+                                <flux:table.cell :attributes="new \Illuminate\View\ComponentAttributeBag($this->cellAttributes($column, $row))">
                                     @if($column->viewName)
                                         @include($column->viewName, ['row' => $row, 'value' => data_get($row, $column->field), 'column' => $column])
                                     @elseif($column->labelCallback || $column->formatCallback)
@@ -192,7 +196,7 @@
                     <flux:table.row>
                         <flux:table.cell :colspan="count($this->getVisibleColumns()) + ($this->hasBulkActions() ? 1 : 0)">
                             <div class="py-8 text-center text-muted">
-                                No records found.
+                                {{ $this->emptyMessage }}
                             </div>
                         </flux:table.cell>
                     </flux:table.row>
@@ -204,11 +208,11 @@
             @endif
         @else
             <div class="py-8 text-center text-muted">
-                No records found.
+                {{ $this->emptyMessage }}
             </div>
         @endif
 
-        @if($mobileRowView)
+        @if($mobileRowView && $this->paginate)
             <flux:pagination :paginator="$rows" class="shrink-0" />
         @endif
     </div>

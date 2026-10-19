@@ -65,7 +65,7 @@ Methods to override:
 
 - `columns()` (required) and `builder()` (required)
 - `filters()`, `bulkActions()` (method name => label)
-- `rowAttributes($row)`, `rowUrl($row)`, `rowUrlTarget($row)`
+- `rowAttributes($row)`, `rowUrl($row)`, `rowUrlTarget($row)`, `cellAttributes($column, $row)` (class merges, other attributes pass through)
 - `mobileRowView()`, `hasSearch()`, `placeholder()`
 - `afterRowsFetched($rows)`, `applySearch()`, `applySorting()`, `applyFilters()`
 
@@ -74,6 +74,8 @@ Protected properties:
 - `$perPage` (15), `$primaryKey` ('id'), `$paginationMethod` ('simplePaginate' or 'paginate')
 - `$defaultSortBy` ('id'), `$defaultSortDirection` ('desc')
 - `$refreshInterval` (seconds, null for no polling), `$mobileRowView`
+- `$pageName` (null for `page`; set it so two tables on one page keep separate pages), `$paginate` (true; false returns all rows with no pagination)
+- `$emptyMessage` ('No records found.'), `$searchPlaceholder` ('Search...')
 - `$maxSelectableRows` (5000)
 
 URL state: `search`, `sortBy`, `sortDirection` and `filterValues[key]`.
@@ -82,18 +84,19 @@ Column: `Column::make($label, $field)` with `sortable()`, `searchable()` (both a
 
 Filters: `SelectFilter` (`options()`, `searchable()`), `TextFilter`, `DateRangeFilter` (`column()`). All accept `filter()`, `setFilterDefaultValue()` and `inline()`.
 
-Toolbar slots are public properties on the table class. Each holds a Blade view name. The `data-table` view includes the view when the property is set (`isset()`). `beforeToolbar` renders above the card. `toolbarEnd` renders at the right end of the toolbar. The included view is a normal Blade view, so it can call Livewire actions on the table.
+Toolbar slots are public properties on the table class. Each holds a Blade view name. The `data-table` view includes the view when the property is set (`isset()`). `beforeToolbar` renders above the card. `toolbarStart` renders at the left start of the toolbar. `toolbarEnd` renders at the right end of the toolbar. The included view is a normal Blade view, so it can call Livewire actions on the table.
 
 ```php
 public ?string $beforeToolbar = 'tables.suppliers.config-panel';
+public ?string $toolbarStart = 'tables.suppliers.toolbar-filters';
 public ?string $toolbarEnd = 'tables.suppliers.toolbar-buttons';
 ```
 
-Optional `$beforeToolbarData` and `$toolbarEndData` arrays are passed to the included view when they are set. A table can also pass a slot as view data from `render()`: `return view('datatable.data-table', ['beforeToolbar' => 'tables.suppliers.config-panel']);`.
+Optional `$beforeToolbarData`, `$toolbarStartData` and `$toolbarEndData` arrays are passed to the included view when they are set. A table can also pass a slot as view data from `render()`: `return view('datatable.data-table', ['beforeToolbar' => 'tables.suppliers.config-panel']);`.
 
 ## App-wide Flux overrides
 
-The package ships `flux/table/column`, `flux/table/columns` and `flux/table/cell`. Because the app view path wins over Flux, these replace the Flux table views for every `flux:table` in the app. They use the shared design tokens (`bg-ground`, `bg-surface`, `border-line`, `text-muted`), so the app needs the shared theme. Cells set no text colour, so body text inherits the page colour (Flux's own cell would make it muted grey). Do not re-publish them.
+The package ships `flux/table/column`, `flux/table/columns` and `flux/table/cell`. Because the app view path wins over Flux, these replace the Flux table views for every `flux:table` in the app. They use the shared design tokens (`bg-ground`, `bg-surface`, `border-line`, `text-muted`), so the app needs the shared theme. Cells set no text colour, so body text inherits the page colour (Flux's own cell would make it muted grey). Do not re-publish them. The package registers its path ahead of Flux's stubs, so these views also win over an app's own `resources/views/flux/table` overrides (one table style).
 
 ## What stays in the app
 
