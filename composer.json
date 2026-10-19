@@ -1,0 +1,49 @@
+{
+    "name": "booni3/flux-datatable",
+    "description": "Livewire and Flux Pro data table",
+    "type": "library",
+    "license": "MIT",
+    "keywords": ["laravel", "livewire", "flux", "datatable"],
+    "require": {
+        "php": "^8.2",
+        "illuminate/support": "^11.0|^12.0",
+        "livewire/livewire": "^3.0|^4.0",
+        "livewire/flux": "^2.0",
+        "livewire/flux-pro": "^2.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^9.0|^10.0",
+        "pestphp/pest": "^3.0",
+        "pestphp/pest-plugin-laravel": "^3.0"
+    },
+    "repositories": [
+        {"type": "composer", "url": "https://composer.fluxui.dev"}
+    ],
+    "autoload": {
+        "psr-4": {
+            "Booni3\\FluxDatatable\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Booni3\\FluxDatatable\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Booni3\\FluxDatatable\\FluxDatatableServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "scripts": {
+        "test": "pest"
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
