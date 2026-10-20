@@ -216,3 +216,10 @@ it('renders the package table view overrides instead of the Flux stubs', functio
     Livewire::test(ConfigurableItemsTable::class)
         ->assertSeeHtml('not-in-[tr:first-child]:border-t border-line');
 });
+
+it('renders the bulk checkbox cell click guard as a valid Alpine attribute', function () {
+    Livewire::test(ItemsTable::class)
+        ->set('withBulk', true)
+        ->assertDontSee('@click.stop="@click.stop"', false)
+        ->assertSee('x-on:click.stop=""', false);
+});

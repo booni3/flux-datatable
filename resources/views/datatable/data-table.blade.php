@@ -169,7 +169,7 @@
                         >
                             {{-- Bulk select checkbox --}}
                             @if($this->hasBulkActions())
-                                <flux:table.cell class="w-10" @click.stop>
+                                <flux:table.cell class="w-10" x-on:click.stop="">
                                     <flux:checkbox wire:model.live="selected" value="{{ $rowKey }}" aria-label="Select row {{ $rowKey }}" />
                                 </flux:table.cell>
                             @endif
