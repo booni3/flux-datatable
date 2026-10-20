@@ -110,7 +110,7 @@
             @if($mobileRowView)
                 <div class="hidden xl:block">
             @endif
-        <flux:table :paginate="$mobileRowView || !$this->paginate ? null : $rows">
+        <flux:table>
             <flux:table.columns>
                 {{-- Bulk select checkbox --}}
                 @if($this->hasBulkActions())
@@ -212,8 +212,8 @@
             </div>
         @endif
 
-        @if($mobileRowView && $this->paginate)
-            <flux:pagination :paginator="$rows" class="shrink-0" />
+        @if($this->paginate)
+            <flux:pagination :paginator="$rows" class="shrink-0 px-4 py-2 border-t border-line" />
         @endif
     </div>
 </div>
