@@ -15,71 +15,69 @@
             $inlineFilters = $this->getInlineFilters();
             $dropdownFilters = $this->getDropdownFilters();
         @endphp
-        <div class="px-4 py-3 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-line">
-            <div class="flex flex-wrap items-center gap-2">
-                @if(isset($toolbarStart))
-                    @include($toolbarStart, $toolbarStartData ?? [])
-                @endif
+        <div data-datatable-toolbar class="flex min-h-14 flex-wrap items-center gap-2 border-b border-line px-4 py-3">
+            @if(isset($toolbarStart))
+                @include($toolbarStart, $toolbarStartData ?? [])
+            @endif
 
-                {{-- Search --}}
-                @if($this->hasSearch())
-                    <flux:input
-                        wire:model.live.debounce.300ms="search"
-                        icon="magnifying-glass"
-                        placeholder="{{ $this->searchPlaceholder }}"
-                        size="sm"
-                        class="!w-full sm:!w-[220px]"
-                        clearable
-                        aria-label="Search table"
-                    />
-                @endif
+            {{-- Search --}}
+            @if($this->hasSearch())
+                <flux:input
+                    wire:model.live.debounce.300ms="search"
+                    icon="magnifying-glass"
+                    placeholder="{{ $this->searchPlaceholder }}"
+                    size="sm"
+                    class="!w-full sm:!w-[220px]"
+                    clearable
+                    aria-label="Search table"
+                />
+            @endif
 
-                {{-- Inline Filters (rendered directly in toolbar) --}}
-                @foreach($inlineFilters as $filter)
-                    @include($filter->viewName(), $filter->viewData("filterValues.{$filter->key}"))
-                @endforeach
+            {{-- Inline Filters (rendered directly in toolbar) --}}
+            @foreach($inlineFilters as $filter)
+                @include($filter->viewName(), $filter->viewData("filterValues.{$filter->key}"))
+            @endforeach
 
-                {{-- Filters Dropdown (non-inline filters only) --}}
-                @if(count($dropdownFilters) > 0)
-                    <flux:dropdown position="bottom" align="start">
-                        <flux:button variant="ghost" size="sm" icon-trailing="funnel">
-                            Filters
+            {{-- Filters Dropdown (non-inline filters only) --}}
+            @if(count($dropdownFilters) > 0)
+                <flux:dropdown position="bottom" align="start">
+                    <flux:button variant="outline" size="sm" icon-trailing="funnel">
+                        Filters
+                        @if($this->hasActiveFilters())
+                            <flux:badge size="sm" color="zinc" inset="top right">
+                                {{ count($this->getAppliedFiltersWithValues()) }}
+                            </flux:badge>
+                        @endif
+                    </flux:button>
+
+                    <flux:menu>
+                        <div class="p-4 space-y-4 min-w-[320px]">
+                            @foreach($dropdownFilters as $filter)
+                                <div>
+                                    <div class="text-xs font-medium text-muted uppercase tracking-wider mb-1.5">{{ $filter->label }}</div>
+                                    @include($filter->viewName(), $filter->viewData("filterValues.{$filter->key}"))
+                                </div>
+                            @endforeach
+
                             @if($this->hasActiveFilters())
-                                <flux:badge size="sm" color="zinc" inset="top right">
-                                    {{ count($this->getAppliedFiltersWithValues()) }}
-                                </flux:badge>
+                                <div class="pt-2 border-t border-line">
+                                    <flux:button wire:click="resetFilters" size="sm" variant="ghost" class="w-full">
+                                        Clear Filters
+                                    </flux:button>
+                                </div>
                             @endif
-                        </flux:button>
+                        </div>
+                    </flux:menu>
+                </flux:dropdown>
+            @endif
 
-                        <flux:menu>
-                            <div class="p-4 space-y-4 min-w-[320px]">
-                                @foreach($dropdownFilters as $filter)
-                                    <div>
-                                        <div class="text-xs font-medium text-muted uppercase tracking-wider mb-1.5">{{ $filter->label }}</div>
-                                        @include($filter->viewName(), $filter->viewData("filterValues.{$filter->key}"))
-                                    </div>
-                                @endforeach
-
-                                @if($this->hasActiveFilters())
-                                    <div class="pt-2 border-t border-line">
-                                        <flux:button wire:click="resetFilters" size="sm" variant="ghost" class="w-full">
-                                            Clear Filters
-                                        </flux:button>
-                                    </div>
-                                @endif
-                            </div>
-                        </flux:menu>
-                    </flux:dropdown>
-                @endif
-            </div>
-
-            <div class="flex items-center gap-2">
+            <div class="ms-auto flex flex-wrap items-center justify-end gap-2">
                 {{-- Bulk Actions --}}
                 @if($this->hasBulkActions() && $this->hasSelection())
                     <div class="flex items-center gap-1">
                         <span class="text-sm text-muted">{{ count($selected) }} selected:</span>
                         @foreach($this->bulkActions() as $method => $label)
-                            <flux:button wire:click="{{ $method }}" size="sm" variant="filled">
+                            <flux:button wire:click="{{ $method }}" size="sm" variant="outline">
                                 {{ $label }}
                             </flux:button>
                         @endforeach

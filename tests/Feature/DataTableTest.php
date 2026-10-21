@@ -212,6 +212,21 @@ it('renders the toolbarStart slot', function () {
     Livewire::test(ConfigurableItemsTable::class)->assertDontSee('start-slot-marker');
 });
 
+it('renders the same toolbar row with and without slot content', function () {
+    $toolbarClass = function (string $html): string {
+        preg_match('/<div data-datatable-toolbar class="([^"]*)"/', $html, $matches);
+
+        return $matches[1] ?? '';
+    };
+
+    $empty = Livewire::test(ConfigurableItemsTable::class)->html();
+    $filled = Livewire::test(ConfigurableItemsTable::class, ['toolbarStart' => 'toolbar-start', 'toolbarEnd' => 'toolbar-end'])->html();
+
+    expect($toolbarClass($empty))->toBe('flex min-h-14 flex-wrap items-center gap-2 border-b border-line px-4 py-3')
+        ->and($toolbarClass($filled))->toBe($toolbarClass($empty))
+        ->and($filled)->toContain('start-slot-marker')->toContain('end-slot-marker');
+});
+
 it('renders the package table view overrides instead of the Flux stubs', function () {
     Livewire::test(ConfigurableItemsTable::class)
         ->assertSeeHtml('not-in-[tr:first-child]:border-t border-line');

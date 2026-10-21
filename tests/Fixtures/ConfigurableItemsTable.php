@@ -8,6 +8,8 @@ class ConfigurableItemsTable extends ItemsTable
 {
     public ?string $toolbarStart = null;
 
+    public ?string $toolbarEnd = null;
+
     public ?string $pageName = null;
 
     public bool $paginate = true;
@@ -16,11 +18,12 @@ class ConfigurableItemsTable extends ItemsTable
 
     protected string $searchPlaceholder = 'Find items';
 
-    public function mount(?string $pageName = null, bool $paginate = true, ?string $toolbarStart = null): void
+    public function mount(?string $pageName = null, bool $paginate = true, ?string $toolbarStart = null, ?string $toolbarEnd = null): void
     {
         $this->pageName = $pageName;
         $this->paginate = $paginate;
         $this->toolbarStart = $toolbarStart;
+        $this->toolbarEnd = $toolbarEnd;
     }
 
     public function cellAttributes(Column $column, mixed $row): array

@@ -94,6 +94,8 @@ public ?string $toolbarEnd = 'tables.suppliers.toolbar-buttons';
 
 Optional `$beforeToolbarData`, `$toolbarStartData` and `$toolbarEndData` arrays are passed to the included view when they are set. A table can also pass a slot as view data from `render()`: `return view('datatable.data-table', ['beforeToolbar' => 'tables.suppliers.config-panel']);`.
 
+The package owns the toolbar row: one wrapping flex row with a fixed minimum height (a `size="sm"` control row) and the same padding on every table. Left to right: `toolbarStart`, search, filters, then a right-aligned group with bulk actions and `toolbarEnd`. Slot views put their items straight into the row: use `size="sm"` controls, no padding, margins or fixed heights of their own, at most one primary button (the create action, placed last) and `variant="outline"` for the rest.
+
 ## App-wide Flux overrides
 
 The package ships `flux/table/column`, `flux/table/columns` and `flux/table/cell`. Because the app view path wins over Flux, these replace the Flux table views for every `flux:table` in the app. They use the shared design tokens (`bg-ground`, `bg-surface`, `border-line`, `text-muted`), so the app needs the shared theme. Cells set no text colour, so body text inherits the page colour (Flux's own cell would make it muted grey). Do not re-publish them. The package registers its path ahead of Flux's stubs, so these views also win over an app's own `resources/views/flux/table` overrides (one table style).
