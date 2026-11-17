@@ -119,7 +119,7 @@
 
                 @foreach($this->getVisibleColumns() as $column)
                     @if($column->sortable && $column->field)
-                        <flux:table.column sortable :sorted="$sortBy === $column->field" :direction="$sortDirection" wire:click="sortBy('{{ $column->field }}')">
+                        <flux:table.column sortable :sorted="$sortBy === $column->field" :direction="$sortDirection" wire:click="sort('{{ $column->field }}')">
                             {{ $column->label }}
                         </flux:table.column>
                     @else

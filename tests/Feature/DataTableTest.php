@@ -27,16 +27,22 @@ it('renders the skeleton placeholder', function () {
 
 it('toggles sort direction and resets on a new column', function () {
     Livewire::test(ItemsTable::class)
-        ->call('sortBy', 'name')
+        ->call('sort', 'name')
         ->assertSet('sortBy', 'name')
         ->assertSet('sortDirection', 'asc')
         ->assertSeeInOrder(['Anvil', 'Bolt', 'Chain'])
-        ->call('sortBy', 'name')
+        ->call('sort', 'name')
         ->assertSet('sortDirection', 'desc')
         ->assertSeeInOrder(['Chain', 'Bolt', 'Anvil'])
-        ->call('sortBy', 'status')
+        ->call('sort', 'status')
         ->assertSet('sortBy', 'status')
         ->assertSet('sortDirection', 'asc');
+});
+
+it('gives the sort action a name that no public property shadows on $wire', function () {
+    $component = Livewire::test(ItemsTable::class)->assertSeeHtml('wire:click="sort(\'name\')"');
+
+    expect(array_keys(get_object_vars($component->instance())))->not->toContain('sort');
 });
 
 it('searches a searchable column', function () {
@@ -90,7 +96,7 @@ it('reads search, sort and filters from the URL', function () {
 it('writes search, sort and filters to the URL', function () {
     Livewire::test(ItemsTable::class)
         ->set('search', 'An')
-        ->call('sortBy', 'name')
+        ->call('sort', 'name')
         ->set('filterValues.status', 'active')
         ->assertSet('search', 'An')
         ->assertSet('sortBy', 'name')
@@ -192,7 +198,7 @@ it('resets the named page on search, filter and sort changes', function () {
         ->set('search', 'o')
         ->assertSet('paginators.itemsPage', 1)
         ->call('setPage', 2, 'itemsPage')
-        ->call('sortBy', 'name')
+        ->call('sort', 'name')
         ->assertSet('paginators.itemsPage', 1)
         ->call('setPage', 2, 'itemsPage')
         ->set('filterValues.status', 'active')
