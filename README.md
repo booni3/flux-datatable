@@ -1,27 +1,40 @@
 # booni3/flux-datatable
 
-A Livewire 3/4 data table built on Flux Pro 2. Requires PHP 8.2, Laravel 11 or 12, `livewire/flux` and `livewire/flux-pro`.
+A Livewire data table built on [Flux UI](https://fluxui.dev) and Flux Pro.
+
+## Requirements
+
+- PHP 8.2+
+- Laravel 11 or 12
+- Livewire 3 or 4
+- Flux 2 (`livewire/flux`)
+- Flux Pro 2 (`livewire/flux-pro`). Flux Pro is a paid package. You need your own Flux Pro licence to install this package. The `DateRangeFilter` uses the Pro `flux:date-picker`.
+- Tailwind colour tokens `ground`, `surface`, `line` and `muted` in the app theme. The table views use `bg-ground`, `bg-surface`, `border-line`, `divide-line` and `text-muted`.
 
 ## Install
 
-Add the repository and the Flux Pro repository to the app `composer.json`:
+The package is not on Packagist. Add the GitHub repository and the Flux Pro repository to the app `composer.json`:
 
 ```json
 "repositories": [
     {"type": "composer", "url": "https://composer.fluxui.dev"},
-    {"type": "vcs", "url": "git@github.com:booni3/flux-datatable.git"}
+    {"type": "vcs", "url": "https://github.com/booni3/flux-datatable"}
 ]
 ```
+
+Composer needs your Flux Pro credentials for `composer.fluxui.dev`. See the Flux installation guide.
 
 ```bash
 composer require booni3/flux-datatable
 ```
 
-The service provider is auto-discovered. It adds the package `resources/views` as a fallback view location. A file at the same path in the app `resources/views` wins. To copy the views into the app:
+The service provider is auto-discovered. It adds the package `resources/views` as a fallback view location. A file at the same relative path in the app `resources/views` wins, for example `resources/views/datatable/data-table.blade.php`.
 
-```bash
-php artisan vendor:publish --tag=flux-datatable-views
-```
+`php artisan vendor:publish --tag=flux-datatable-views` copies the views to `resources/views/vendor/flux-datatable`. The package does not read views from that folder. To override a view, move the copy to the same relative path under `resources/views`.
+
+## Upgrade to 0.3.0
+
+The sort action on the table is now `sort($field)`. It was `sortBy($field)`, which the public `$sortBy` property shadowed, so header clicks did not sort. If an app view or test calls `sortBy(...)` as an action, change it to `sort(...)`. The URL state (`sortBy` and `sortDirection`) does not change.
 
 ## Example
 
@@ -98,7 +111,7 @@ The package owns the toolbar row: one wrapping flex row with a fixed minimum hei
 
 ## App-wide Flux overrides
 
-The package ships `flux/table/column`, `flux/table/columns` and `flux/table/cell`. Because the app view path wins over Flux, these replace the Flux table views for every `flux:table` in the app. They use the shared design tokens (`bg-ground`, `bg-surface`, `border-line`, `text-muted`), so the app needs the shared theme. Cells set no text colour, so body text inherits the page colour (Flux's own cell would make it muted grey). Do not re-publish them. The package registers its path ahead of Flux's stubs, so these views also win over an app's own `resources/views/flux/table` overrides (one table style).
+The package ships `flux/table/column`, `flux/table/columns` and `flux/table/cell`. Because the app view path wins over Flux, these replace the Flux table views for every `flux:table` in the app. They use the colour tokens listed under Requirements. Cells set no text colour, so body text inherits the page colour (Flux's own cell would make it muted grey). Do not re-publish them. The package registers its path ahead of Flux's stubs, so these views also win over an app's own `resources/views/flux/table` overrides (one table style).
 
 ## What stays in the app
 
@@ -107,6 +120,8 @@ The package ships `flux/table/column`, `flux/table/columns` and `flux/table/cell
 - Cell, toolbar and mobile row views.
 
 ## Tests
+
+The test suite needs Flux Pro, so `composer install` needs your Flux Pro credentials.
 
 ```bash
 composer install
